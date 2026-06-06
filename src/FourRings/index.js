@@ -8,75 +8,8 @@ import {
 	Category,
 	TotalMoney,
 	Footer,
+	FullscreenOverlay,
 } from "./styled";
-
-const FourRings = () => {
-	// Создаем состояние для хранения введенных часов
-	const [hours, setHours] = useState("");
-
-	// Ставки для разрядов
-	const rates = {
-		fourth: 23.5,
-		fifth: 26.8,
-		sixth: 30.2,
-	};
-
-	// Функция для расчета «груш» с учетом вычета 14%
-	const calculatePears = (rate) => {
-		const parsedHours = parseFloat(hours);
-		// Если в поле ничего не введено или это не число, возвращаем 0
-		if (isNaN(parsedHours) || parsedHours <= 0) return "0.00";
-
-		const totalBeforeTax = parsedHours * rate;
-		const tax = totalBeforeTax * 0.14;
-		const finalTotal = totalBeforeTax - tax;
-
-		// Округляем до 2 знаков после запятой для красоты
-		return finalTotal.toFixed(2);
-	};
-
-	// Получаем рассчитанные значения для каждого разряда
-	const calculatedItems = {
-		fourth: calculatePears(rates.fourth),
-		fifth: calculatePears(rates.fifth),
-		sixth: calculatePears(rates.sixth),
-	};
-
-	return (
-		<Container>
-			<Header>
-				<h1>Пилорама</h1>
-				<h2>Четыре Кольца</h2>
-				<p>Сервис для расчета заработанных шапок груш.</p>
-			</Header>
-
-			<Rank>
-				<p>Результат по разрядам:</p>
-				{/* Передаем рассчитанные значения в компонент Item */}
-				<Item
-					fourth={calculatedItems.fourth}
-					fifth={calculatedItems.fifth}
-					sixth={calculatedItems.sixth}
-				/>
-			</Rank>
-
-			<HoursWorked>
-				<p>Укажи кол-во нормочасов :</p>
-				<input
-					placeholder="Часули"
-					type="number"
-					value={hours}
-					onChange={(e) => setHours(e.target.value)} // Обновляем состояние при вводе
-				/>
-			</HoursWorked>
-
-			<Footer>
-				По всем вопросам и предложениям:
-				<a href="https://t.me/aaliaksei">@aaliaksei</a>
-			</Footer>
-		</Container>
-	);
-};
 
 const Item = (props) => {
 	const { fourth, fifth, sixth } = props;
@@ -101,6 +34,105 @@ const Item = (props) => {
 				</TotalMoney>
 			</Category>
 		</ContainerRating>
+	);
+};
+
+const FourRings = () => {
+	const [hours, setHours] = useState("");
+	// Состояние для отслеживания, был ли совершен клик по оверлею
+	const [showQuery, setShowQuery] = useState(false);
+
+	const rates = {
+		fourth: 23.5,
+		fifth: 26.8,
+		sixth: 30.2,
+	};
+
+	const calculatePears = (rate) => {
+		const parsedHours = parseFloat(hours);
+		if (isNaN(parsedHours) || parsedHours <= 0) return "0.00";
+
+		const totalBeforeTax = parsedHours * rate;
+		const tax = totalBeforeTax * 0.14;
+		const finalTotal = totalBeforeTax - tax;
+
+		return finalTotal.toFixed(2);
+	};
+
+	const calculatedItems = {
+		fourth: calculatePears(rates.fourth),
+		fifth: calculatePears(rates.fifth),
+		sixth: calculatePears(rates.sixth),
+	};
+
+	// Оверлей показывается только если сумма > 3000 И мы еще по нему не кликали
+	const isBrilliant = parseFloat(calculatedItems.sixth) > 3000 && !showQuery;
+
+	// Сброс часов также сбрасывает состояние показа запроса, чтобы калькулятор работал снова
+	const handleHoursChange = (e) => {
+		setHours(e.target.value);
+		setShowQuery(false);
+	};
+
+	return (
+		<Container>
+			{/* При клике скрываем надпись и переключаем состояние */}
+			{isBrilliant && (
+				<FullscreenOverlay onClick={() => setShowQuery(true)}>
+					Бляястяще!
+				</FullscreenOverlay>
+			)}
+
+			<Header>
+				<h1>Пилорама</h1>
+				<h2>Четыре Кольца</h2>
+				<p>Сервис для расчета заработанных шапок груш.</p>
+			</Header>
+
+			{/* Если оверлей был скрыт кликом, выводим блок с результатом запроса */}
+			{showQuery && (
+				<div
+					style={{
+						textAlign: "center",
+						margin: "20px 0",
+						padding: "15px",
+						background: "#e0f2fe",
+						borderRadius: "12px",
+						color: "#0369a1",
+						fontWeight: "bold",
+						width: "100%",
+						maxWidth: "320px",
+						alignSelf: "center",
+					}}
+				>
+					Запрошенный запрос успешно выведен!
+				</div>
+			)}
+
+			<Rank>
+				<p>Результат по разрядам:</p>
+				<Item
+					fourth={calculatedItems.fourth}
+					fifth={calculatedItems.fifth}
+					sixth={calculatedItems.sixth}
+				/>
+			</Rank>
+
+			<HoursWorked>
+				<p>Укажи кол-во нормочасов :</p>
+				<input
+					placeholder="Часули"
+					type="number"
+					value={hours}
+					onChange={handleHoursChange}
+				/>
+			</HoursWorked>
+
+			<Footer>
+				По всем вопросам и предложениям:
+				<a href="https://t.me/aaliaksei">@aaliaksei</a>
+			</Footer>
+		</Container>
 	);
 };
 

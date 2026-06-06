@@ -1,5 +1,45 @@
 import styled, { keyframes } from "styled-components";
 
+// Добавь во внутренний список keyframes в файле styled.js
+const celebrateAnimation = keyframes`
+  0% { transform: scale(0.9); opacity: 0; }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+`;
+
+// Экспортируй новый компонент для полноэкранного текста
+export const FullscreenOverlay = styled.div`
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100vw;
+	height: 100vh;
+	/* Яркий, праздничный градиент */
+	background: linear-gradient(135deg, #4f46e5 0%, #10b981 100%);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	color: #ffffff;
+	font-size: 64px;
+	font-weight: 900;
+	letter-spacing: 2px;
+	text-transform: uppercase;
+	z-index: 9999; /* Поверх всех элементов */
+	cursor: pointer;
+	user-select: none;
+	animation: ${celebrateAnimation} 0.4s ease-out forwards;
+
+	/* Текстовая тень для создания эффекта объема и блеска */
+	text-shadow:
+		0px 4px 20px rgba(255, 255, 255, 0.4),
+		0px 10px 40px rgba(0, 0, 0, 0.2);
+
+	@media screen and (max-width: 768px) {
+		font-size: 38px;
+		text-align: center;
+	}
+`;
+
 // Анимация плавного появления контента сверху вниз
 const fadeIn = keyframes`
     from {
