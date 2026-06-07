@@ -39,7 +39,6 @@ const Item = (props) => {
 
 const FourRings = () => {
 	const [hours, setHours] = useState("");
-	// Состояние для отслеживания, был ли совершен клик по оверлею
 	const [showQuery, setShowQuery] = useState(false);
 
 	const rates = {
@@ -65,10 +64,11 @@ const FourRings = () => {
 		sixth: calculatePears(rates.sixth),
 	};
 
-	// Оверлей показывается только если сумма > 3000 И мы еще по нему не кликали
-	const isBrilliant = parseFloat(calculatedItems.sixth) > 3000 && !showQuery;
+	// ИЗМЕНЕНИЕ ЗДЕСЬ: переводим строку hours в число и проверяем, что оно >= 100
+	const parsedHoursValue = parseFloat(hours);
+	const isBrilliant =
+		!isNaN(parsedHoursValue) && parsedHoursValue >= 100 && !showQuery;
 
-	// Сброс часов также сбрасывает состояние показа запроса, чтобы калькулятор работал снова
 	const handleHoursChange = (e) => {
 		setHours(e.target.value);
 		setShowQuery(false);
@@ -76,7 +76,6 @@ const FourRings = () => {
 
 	return (
 		<Container>
-			{/* При клике скрываем надпись и переключаем состояние */}
 			{isBrilliant && (
 				<FullscreenOverlay onClick={() => setShowQuery(true)}>
 					Бляястяще!
@@ -89,7 +88,6 @@ const FourRings = () => {
 				<p>Сервис для расчета заработанных шапок груш.</p>
 			</Header>
 
-			{/* Если оверлей был скрыт кликом, выводим блок с результатом запроса */}
 			{showQuery && (
 				<div
 					style={{
