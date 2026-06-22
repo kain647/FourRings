@@ -99,6 +99,46 @@ export const Header = styled.div`
 	}
 `;
 
+export const LogoWrapper = styled.div`
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	max-width: 180px;
+	margin: 15px auto;
+	transition: transform 0.3s ease;
+
+	svg {
+		width: 100%;
+		height: auto;
+		/* Цвет колец берется из текущей темы (адаптивный хром) */
+		color: ${(props) => props.theme.textMain};
+	}
+
+	/* Эффект распила: линия раскола будет контрастной */
+	line {
+		stroke: ${(props) =>
+			props.theme.background.includes("#0f172a") ? "#0f172a" : "#f8fafc"};
+	}
+
+	/* Интерактив: когда тапаешь или наводишь на логотип, пила начинает слегка вибрировать */
+	&:hover g {
+		animation: sawVibration 0.15s linear infinite;
+	}
+
+	@keyframes sawVibration {
+		0% {
+			transform: rotate(15deg) translate(0, 0);
+		}
+		50% {
+			transform: rotate(15deg) translate(1px, -1px);
+		}
+		100% {
+			transform: rotate(15deg) translate(-1px, 1px);
+		}
+	}
+`;
+
 export const Rank = styled.div`
 	display: flex;
 	flex-direction: column;

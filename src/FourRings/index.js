@@ -4,6 +4,7 @@ import {
 	Container,
 	ThemeToggle,
 	Header,
+	LogoWrapper,
 	Rank,
 	HoursWorked,
 	ContainerRating,
@@ -220,6 +221,94 @@ const FourRings = () => {
 
 				<Header>
 					<h1>Пилорама</h1>
+					<LogoWrapper>
+						<svg
+							viewBox="0 0 200 90"
+							xmlns="http://www.w3.org/2000/svg"
+						>
+							{/* Кольца Audi (левая пара) */}
+							<circle
+								cx="50"
+								cy="45"
+								r="22"
+								stroke="currentColor"
+								strokeWidth="5"
+								fill="none"
+							/>
+							<circle
+								cx="82"
+								cy="45"
+								r="22"
+								stroke="currentColor"
+								strokeWidth="5"
+								fill="none"
+							/>
+
+							{/* Кольца Audi (правая пара) */}
+							<circle
+								cx="114"
+								cy="45"
+								r="22"
+								stroke="currentColor"
+								strokeWidth="5"
+								fill="none"
+							/>
+							<circle
+								cx="146"
+								cy="45"
+								r="22"
+								stroke="currentColor"
+								strokeWidth="5"
+								fill="none"
+							/>
+
+							{/* Двуручная пила "Дружба-2", идущая под углом сверху вниз */}
+							<g transform="rotate(15 100 45)">
+								{/* Полотно пилы */}
+								<path
+									d="M 20 42 L 180 42 L 180 48 L 20 48 Z"
+									fill="#94a3b8"
+									stroke="#64748b"
+									strokeWidth="1"
+								/>
+								{/* Зубья пилы (зигзаг снизу полотна) */}
+								<path
+									d="M 30 48 L 35 53 L 40 48 L 45 53 L 50 48 L 55 53 L 60 48 L 65 53 L 70 48 L 75 53 L 80 48 L 85 53 L 90 48 L 95 53 L 100 48 L 105 53 L 110 48 L 115 53 L 120 48 L 125 53 L 130 48 L 135 53 L 140 48 L 145 53 L 150 48 L 155 53 L 160 48"
+									fill="none"
+									stroke="#475569"
+									strokeWidth="1.5"
+									strokeLinecap="round"
+									strokeLinejoin="round"
+								/>
+								{/* Ручка левая */}
+								<path
+									d="M 20 35 L 20 55 M 15 38 L 20 45 L 15 52"
+									fill="none"
+									stroke="#b45309"
+									strokeWidth="3"
+									strokeLinecap="round"
+								/>
+								{/* Ручка правая */}
+								<path
+									d="M 180 35 L 180 55 M 185 38 L 180 45 L 185 52"
+									fill="none"
+									stroke="#b45309"
+									strokeWidth="3"
+									strokeLinecap="round"
+								/>
+							</g>
+
+							{/* Линия раскола/распила по центру */}
+							<line
+								x1="98"
+								y1="15"
+								x2="98"
+								y2="75"
+								strokeWidth="4"
+								strokeLinecap="round"
+							/>
+						</svg>
+					</LogoWrapper>
 					<h2>Четыре Кольца</h2>
 					<p>Сервис для расчета заработанных шапок груш.</p>
 				</Header>
