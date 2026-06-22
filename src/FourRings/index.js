@@ -249,7 +249,7 @@ const FourRings = () => {
 
 					<p>Своя ставка нормочаса (опционально):</p>
 					<input
-						placeholder="Ставка ($ / руб)"
+						placeholder="Ставка ( руб )"
 						type="number"
 						min="0"
 						value={customRate}
