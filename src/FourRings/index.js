@@ -14,7 +14,6 @@ import {
 	Footer,
 } from "./styled";
 
-// Конфигурация палитры цветов для тем
 const lightTheme = {
 	background: "linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%)",
 	cardBg: "#ffffff",
@@ -33,31 +32,52 @@ const darkTheme = {
 	textMuted: "#94a3b8",
 };
 
-const Item = ({ items, onDecreaseCustom, isRich }) => {
+const Item = ({
+	items,
+	onDecreaseCustom,
+	isRich,
+	selectedRate,
+	onSelectRate,
+}) => {
 	return (
 		<ContainerRating>
-			{items.map((item, index) => (
-				<Category key={index} isCustom={item.isCustom}>
-					<p>
-						{item.title} ({item.rate})
-					</p>
-					{/* Пункт 4: Если часов >= 160, карточка получает статус isRich и рендерится мешок */}
-					<TotalMoney isRich={isRich}>
-						{item.value} <label>Груш {isRich && "💰"}</label>
-					</TotalMoney>
+			{items.map((item, index) => {
+				// Проверяем, выбрана ли текущая плашка
+				const isSelected = selectedRate?.title === item.title;
 
-					{/* Пункт 3: Кнопка удаления кастомной ставки прямо на карточке */}
-					{item.isCustom && (
-						<button
-							className="delete-custom"
-							onClick={onDecreaseCustom}
-							title="Удалить ставку"
+				return (
+					<Category
+						key={index}
+						isCustom={item.isCustom}
+						isSelected={isSelected} // Передаем в стили
+						onClick={() => onSelectRate(item)} // Клик по плашке
+					>
+						<p>
+							{item.title} ({item.rate})
+						</p>
+						<TotalMoney
+							isRich={isRich && isSelected}
+							isSelected={isSelected}
 						>
-							✕
-						</button>
-					)}
-				</Category>
-			))}
+							{item.value}{" "}
+							<label>Груш {isRich && isSelected && "💰"}</label>
+						</TotalMoney>
+
+						{item.isCustom && (
+							<button
+								className="delete-custom"
+								onClick={(e) => {
+									e.stopPropagation(); // Чтобы не срабатывал выбор карточки при удалении
+									onDecreaseCustom();
+								}}
+								title="Удалить ставку"
+							>
+								✕
+							</button>
+						)}
+					</Category>
+				);
+			})}
 		</ContainerRating>
 	);
 };
@@ -68,20 +88,25 @@ const FourRings = () => {
 		return localStorage.getItem("custom_normohour_rate") || "";
 	});
 
-	// Пункты 1: Стейт для темной темы с сохранением в память
 	const [isDarkMode, setIsDarkMode] = useState(() => {
 		return localStorage.getItem("theme_mode") === "dark";
 	});
 
-	// Пункт 5: Стейт для хранения истории расчетов
 	const [history, setHistory] = useState(() => {
 		const saved = localStorage.getItem("pears_history");
 		return saved ? JSON.parse(saved) : [];
 	});
 
+	// НОВОЕ: Храним выбранный разряд
+	const [selectedRate, setSelectedRate] = useState(null);
+
 	useEffect(() => {
 		localStorage.setItem("custom_normohour_rate", customRate);
-	}, [customRate]);
+		// Если кастомную ставку удалили, сбрасываем выбор, если был выбран "Свой"
+		if (!customRate && selectedRate?.title === "Свой") {
+			setSelectedRate(null);
+		}
+	}, [customRate, selectedRate]);
 
 	useEffect(() => {
 		localStorage.setItem("theme_mode", isDarkMode ? "dark" : "light");
@@ -117,7 +142,6 @@ const FourRings = () => {
 		return finalTotal.toFixed(2);
 	};
 
-	// Пункт 2: Скелетоны / Динамическое отображение прочерков вместо нулей
 	const formatValue = (value) => {
 		return hours === "" || parseFloat(hours) === 0 ? "—" : value;
 	};
@@ -126,6 +150,7 @@ const FourRings = () => {
 		title: item.title,
 		rate: item.rate.toFixed(2),
 		value: formatValue(calculatePears(item.rate)),
+		rawRate: item.rate, // Сохраняем чистую ставку для расчетов
 	}));
 
 	const customItem =
@@ -135,6 +160,7 @@ const FourRings = () => {
 					rate: parseFloat(customRate).toFixed(2),
 					value: formatValue(calculatePears(customRate)),
 					isCustom: true,
+					rawRate: parseFloat(customRate),
 				}
 			: null;
 
@@ -142,13 +168,14 @@ const FourRings = () => {
 		? [...defaultCalculatedItems, customItem]
 		: defaultCalculatedItems;
 
-	// Пункт 4: Проверка на пасхалку (> 160 часов — серьезная переработка)
+	// Пасхалка на 100 часов
 	const isRich = parseFloat(hours) >= 100;
 
 	const handleHoursChange = (e) => {
 		const val = e.target.value;
 		if (parseFloat(val) < 0) return;
 		setHours(val);
+		// При изменении часов не сбрасываем выбранный разряд, суммы пересчитаются автоматически
 	};
 
 	const handleCustomRateChange = (e) => {
@@ -163,13 +190,12 @@ const FourRings = () => {
 		}
 	};
 
-	// Пункт 5: Добавление записи в историю
+	// Добавление в историю на основе ВЫБРАННОГО разряда
 	const saveToHistory = () => {
-		if (!hours || parseFloat(hours) <= 0) return;
+		if (!hours || parseFloat(hours) <= 0 || !selectedRate) return;
 
-		// Берем для лога максимальный 6-й разряд или Свой разряд (если он есть)
-		const activeRate = customItem ? customRate : 30.2;
-		const totalMoneyResult = calculatePears(activeRate);
+		// Считаем сумму по ставке из выбранного элемента
+		const totalMoneyResult = calculatePears(selectedRate.rawRate);
 
 		const newRecord = {
 			id: Date.now(),
@@ -179,15 +205,15 @@ const FourRings = () => {
 			}),
 			hours: hours,
 			money: totalMoneyResult,
+			label: selectedRate.title, // Сохраняем инфо о разряде в историю
 		};
 
-		setHistory([newRecord, ...history].slice(0, 20)); // Храним последние 20 записей
+		setHistory([newRecord, ...history].slice(0, 20));
 	};
 
 	return (
 		<ThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
 			<Container>
-				{/* Пункт 1: Кнопка переключения темы */}
 				<ThemeToggle onClick={() => setIsDarkMode(!isDarkMode)}>
 					{isDarkMode ? "☀️" : "🌙"}
 				</ThemeToggle>
@@ -199,11 +225,13 @@ const FourRings = () => {
 				</Header>
 
 				<Rank>
-					<p className="rank-title">Результат по разрядам:</p>
+					<p className="rank-title">Выбери разряд тапом на плашку:</p>
 					<Item
 						items={allRenderItems}
 						onDecreaseCustom={() => setCustomRate("")}
 						isRich={isRich}
+						selectedRate={selectedRate}
+						onSelectRate={setSelectedRate} // Передаем функцию выбора
 					/>
 				</Rank>
 
@@ -229,16 +257,19 @@ const FourRings = () => {
 						onKeyDown={blockInvalidChar}
 					/>
 
-					{/* Пункт 5: Кнопка сохранения текущего результата */}
+					{/* Кнопка активна только если введены часы И выбран разряд */}
 					<ActionButton
 						onClick={saveToHistory}
-						disabled={!hours || parseFloat(hours) <= 0}
+						disabled={
+							!hours || parseFloat(hours) <= 0 || !selectedRate
+						}
 					>
-						Сохранить расчет в историю
+						{!selectedRate
+							? "Сначала выбери разряд выше"
+							: `Сохранить расчет (${selectedRate.title})`}
 					</ActionButton>
 				</HoursWorked>
 
-				{/* Пункт 5: Блок вывода сохраненной истории */}
 				{history.length > 0 && (
 					<HistoryContainer>
 						<h3>
@@ -251,7 +282,12 @@ const FourRings = () => {
 							{history.map((item) => (
 								<div className="history-item" key={item.id}>
 									<span className="date">{item.date}</span>
-									<span>{item.hours} ч.</span>
+									<span>
+										{item.hours} ч.{" "}
+										<small style={{ opacity: 0.6 }}>
+											({item.label})
+										</small>
+									</span>
 									<span className="money">
 										{item.money} Гр.
 									</span>

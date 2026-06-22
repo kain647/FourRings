@@ -128,14 +128,29 @@ export const Category = styled.div`
 	max-width: 320px;
 	justify-content: center;
 	text-align: center;
-	background: ${(props) => props.theme.cardBg};
-	border: 2px solid ${(props) => (props.isCustom ? "#6366f1" : "transparent")};
+	/* Фиксация цвета фона при выделении */
+	background: ${(props) =>
+		props.isSelected ? "#6366f1" : props.theme.cardBg};
+	/* Для кастомной ставки делаем отдельную рамку, если она не выбрана */
+	border: 2px solid
+		${(props) =>
+			props.isSelected
+				? "#6366f1"
+				: props.isCustom
+					? "#6366f1"
+					: "transparent"};
 	border-radius: 14px;
 	padding: 18px 16px;
+	margin-bottom: 4px;
 	box-sizing: border-box;
-	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+	box-shadow: ${(props) =>
+		props.isSelected
+			? "0 10px 15px -3px rgba(99, 102, 241, 0.3)"
+			: "0 4px 6px -1px rgba(0, 0, 0, 0.05)"};
 	position: relative;
+	cursor: pointer;
 	transition: all 0.2s ease-in-out;
+	-webkit-tap-highlight-color: transparent;
 
 	.delete-custom {
 		position: absolute;
@@ -143,7 +158,8 @@ export const Category = styled.div`
 		right: 8px;
 		background: transparent;
 		border: none;
-		color: #ef4444;
+		/* Если карточка выбрана, крестик делаем белым, чтобы не терялся */
+		color: ${(props) => (props.isSelected ? "#ffffff" : "#ef4444")};
 		cursor: pointer;
 		font-size: 16px;
 		padding: 4px;
@@ -160,9 +176,12 @@ export const Category = styled.div`
 	p {
 		padding: 0;
 		margin: 0;
-		color: ${(props) => props.theme.textMain};
+		/* Цвет текста меняется на белый, если плашка активна */
+		color: ${(props) =>
+			props.isSelected ? "#ffffff" : props.theme.textMain};
 		font-weight: 500;
 		font-size: 15px;
+		transition: color 0.2s ease;
 	}
 `;
 
@@ -177,8 +196,9 @@ export const TotalMoney = styled.div`
 	margin: 12px 0 0 0;
 	padding: 10px 20px;
 	border-radius: 12px;
+	transition: all 0.2s ease;
 
-	/* Пункт 4: Пасхалка с переливанием и мешком денег */
+	/* Если карточка выбрана И активирована пасхалка на 100ч — включаем радугу */
 	${(props) =>
 		props.isRich
 			? css`
@@ -196,15 +216,23 @@ export const TotalMoney = styled.div`
 					}
 				`
 			: css`
-					background: ${(props) => props.theme.moneyBg};
-					color: #10b981;
+					/* Если плашка просто выбрана, делаем внутренний блок чуть темнее/светлее для контраста */
+					background: ${props.isSelected
+						? "rgba(0, 0, 0, 0.15)"
+						: props.theme.moneyBg};
+					color: ${props.isSelected ? "#ffffff" : "#10b981"};
 				`}
 
 	label {
 		margin-left: 6px;
 		font-size: 16px;
-		color: ${(props) => props.theme.textMuted};
+		/* Подгоняем цвет подписей "Груш" */
+		color: ${(props) =>
+			props.isSelected
+				? "rgba(255, 255, 255, 0.8)"
+				: props.theme.textMuted};
 		font-weight: 500;
+		transition: color 0.2s ease;
 	}
 `;
 
