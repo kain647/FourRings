@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
 	Container,
 	Header,
@@ -8,48 +8,54 @@ import {
 	Category,
 	TotalMoney,
 	Footer,
-	FullscreenOverlay,
 } from "./styled";
 
-const Item = (props) => {
-	const { fourth, fifth, sixth } = props;
+const Item = ({ items }) => {
 	return (
 		<ContainerRating>
-			<Category>
-				<p>4-ый (23.50)</p>
-				<TotalMoney>
-					{fourth} <label>Груш</label>
-				</TotalMoney>
-			</Category>
-			<Category>
-				<p>5-ый (26.80)</p>
-				<TotalMoney>
-					{fifth} <label>Груш</label>
-				</TotalMoney>
-			</Category>
-			<Category>
-				<p>6-ый (30.20)</p>
-				<TotalMoney>
-					{sixth} <label>Груш</label>
-				</TotalMoney>
-			</Category>
+			{items.map((item, index) => (
+				<Category key={index}>
+					<p>
+						{item.title} ({item.rate})
+					</p>
+					<TotalMoney>
+						{item.value} <label>Груш</label>
+					</TotalMoney>
+				</Category>
+			))}
 		</ContainerRating>
 	);
 };
 
 const FourRings = () => {
 	const [hours, setHours] = useState("");
+	const [customRate, setCustomRate] = useState(() => {
+		return localStorage.getItem("custom_normohour_rate") || "";
+	});
 	const [showQuery, setShowQuery] = useState(false);
 
-	const rates = {
-		fourth: 23.5,
-		fifth: 26.8,
-		sixth: 30.2,
-	};
+	useEffect(() => {
+		localStorage.setItem("custom_normohour_rate", customRate);
+	}, [customRate]);
 
-	const calculatePears = (rate) => {
+	const baseRates = [
+		{ key: "fourth", title: "4-ый", rate: 23.5 },
+		{ key: "fifth", title: "5-ый", rate: 26.8 },
+		{ key: "sixth", title: "6-ый", rate: 30.2 },
+	];
+
+	const calculatePears = (rateValue) => {
 		const parsedHours = parseFloat(hours);
-		if (isNaN(parsedHours) || parsedHours <= 0) return "0.00";
+		const rate = parseFloat(rateValue);
+
+		if (
+			isNaN(parsedHours) ||
+			parsedHours <= 0 ||
+			isNaN(rate) ||
+			rate <= 0
+		) {
+			return "0.00";
+		}
 
 		const totalBeforeTax = parsedHours * rate;
 		const tax = totalBeforeTax * 0.14;
@@ -58,30 +64,50 @@ const FourRings = () => {
 		return finalTotal.toFixed(2);
 	};
 
-	const calculatedItems = {
-		fourth: calculatePears(rates.fourth),
-		fifth: calculatePears(rates.fifth),
-		sixth: calculatePears(rates.sixth),
-	};
+	const defaultCalculatedItems = baseRates.map((item) => ({
+		title: item.title,
+		rate: item.rate.toFixed(2),
+		value: calculatePears(item.rate),
+	}));
 
-	// ИЗМЕНЕНИЕ ЗДЕСЬ: переводим строку hours в число и проверяем, что оно >= 100
-	const parsedHoursValue = parseFloat(hours);
-	const isBrilliant =
-		!isNaN(parsedHoursValue) && parsedHoursValue >= 100 && !showQuery;
+	// Создаем объект для кастомной ставки, если она введена
+	const customItem =
+		customRate && parseFloat(customRate) > 0
+			? {
+					title: "Свой",
+					rate: parseFloat(customRate).toFixed(2),
+					value: calculatePears(customRate),
+				}
+			: null;
+
+	// Объединяем дефолтные разряды и кастомный в один массив для рендера
+	const allRenderItems = customItem
+		? [...defaultCalculatedItems, customItem]
+		: defaultCalculatedItems;
 
 	const handleHoursChange = (e) => {
-		setHours(e.target.value);
+		const val = e.target.value;
+		if (parseFloat(val) < 0) return;
+
+		setHours(val);
 		setShowQuery(false);
+	};
+
+	const handleCustomRateChange = (e) => {
+		const val = e.target.value;
+		if (parseFloat(val) < 0) return;
+
+		setCustomRate(val);
+	};
+
+	const blockInvalidChar = (e) => {
+		if (["e", "E", "-", "+"].includes(e.key)) {
+			e.preventDefault();
+		}
 	};
 
 	return (
 		<Container>
-			{isBrilliant && (
-				<FullscreenOverlay onClick={() => setShowQuery(true)}>
-					Бляястяще!
-				</FullscreenOverlay>
-			)}
-
 			<Header>
 				<h1>Пилорама</h1>
 				<h2>Четыре Кольца</h2>
@@ -103,17 +129,14 @@ const FourRings = () => {
 						alignSelf: "center",
 					}}
 				>
-					Годиться !
+					Годится!
 				</div>
 			)}
 
 			<Rank>
 				<p>Результат по разрядам:</p>
-				<Item
-					fourth={calculatedItems.fourth}
-					fifth={calculatedItems.fifth}
-					sixth={calculatedItems.sixth}
-				/>
+				{/* Передаем единый массив, карточки встанут идеально ровно */}
+				<Item items={allRenderItems} />
 			</Rank>
 
 			<HoursWorked>
@@ -121,8 +144,21 @@ const FourRings = () => {
 				<input
 					placeholder="Часули"
 					type="number"
+					min="0"
 					value={hours}
 					onChange={handleHoursChange}
+					onKeyDown={blockInvalidChar}
+					style={{ marginBottom: "15px" }}
+				/>
+
+				<p>Своя ставка нормочаса (опционально):</p>
+				<input
+					placeholder="Ставка ($ / руб)"
+					type="number"
+					min="0"
+					value={customRate}
+					onChange={handleCustomRateChange}
+					onKeyDown={blockInvalidChar}
 				/>
 			</HoursWorked>
 
