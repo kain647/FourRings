@@ -1,8 +1,12 @@
-body {
-    display: flex;
-    justify-content: center;
-    background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+html, body, #root {
     margin: 0;
+    padding: 0;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh; /* Гарантирует отсутствие рамок и полос прокрутки в мобильных Safari/Chrome */
+}
+
+body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;

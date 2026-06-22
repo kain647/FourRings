@@ -1,22 +1,21 @@
-import styled, { keyframes } from "styled-components";
+import styled, { keyframes, css } from "styled-components";
 
-// Анимация плавного появления контента сверху вниз
+// Анимации
 const fadeIn = keyframes`
-    from {
-        opacity: 0;
-        transform: translateY(-10px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
 `;
 
-// Пульсирующий эффект для активного инпута
 const pulse = keyframes`
     0% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.4); }
     70% { box-shadow: 0 0 0 8px rgba(99, 102, 241, 0); }
     100% { box-shadow: 0 0 0 0 rgba(99, 102, 241, 0); }
+`;
+
+const moneyRainbow = keyframes`
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
 `;
 
 export const Container = styled.div`
@@ -28,17 +27,41 @@ export const Container = styled.div`
 	flex-direction: column;
 	padding: 0 20px;
 	box-sizing: border-box;
-	background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+	background: ${(props) => props.theme.background};
 	font-family:
 		"Inter",
 		-apple-system,
 		BlinkMacSystemFont,
 		sans-serif;
 	animation: ${fadeIn} 0.6s ease-out;
+	transition: background 0.3s ease;
 
 	@media screen and (max-width: 768px) {
 		align-items: center;
 		padding: 0 16px;
+	}
+`;
+
+export const ThemeToggle = styled.button`
+	position: absolute;
+	top: 20px;
+	right: 20px;
+	background: ${(props) => props.theme.cardBg};
+	border: 2px solid ${(props) => props.theme.border};
+	color: ${(props) => props.theme.textMain};
+	border-radius: 50%;
+	width: 44px;
+	height: 44px;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	font-size: 20px;
+	box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+	transition: all 0.2s ease;
+
+	&:active {
+		transform: scale(0.95);
 	}
 `;
 
@@ -47,54 +70,32 @@ export const Header = styled.div`
 	flex-direction: column;
 	justify-content: center;
 	text-align: center;
-	padding: 40px 0 24px 0;
-	border-bottom: 1px solid #e2e8f0;
+	padding: 60px 0 24px 0;
+	border-bottom: 1px solid ${(props) => props.theme.border};
 	margin-bottom: 30px;
 	width: 100%;
 	max-width: 600px;
 	align-self: center;
 
-	@media screen and (max-width: 768px) {
-		padding: 24px 0 16px 0;
-		margin-bottom: 20px;
-	}
-
 	p {
-		color: #64748b;
+		color: ${(props) => props.theme.textMuted};
 		font-size: 14px;
 		margin: 0 0 6px 0;
 		font-weight: 500;
-		letter-spacing: 0.5px;
-
-		@media screen and (max-width: 768px) {
-			font-size: 12px;
-		}
 	}
 
 	h1 {
-		color: #0f172a;
+		color: ${(props) => props.theme.textMain};
 		margin: 0 0 8px 0;
 		font-size: 32px;
 		font-weight: 700;
-		letter-spacing: -0.5px;
-		line-height: 1.2;
-
-		@media screen and (max-width: 768px) {
-			font-size: 24px;
-		}
 	}
 
 	h2 {
-		color: #475569;
+		color: ${(props) => props.theme.textMuted};
 		margin: 0;
 		font-size: 18px;
 		font-weight: 400;
-		line-height: 1.5;
-
-		@media screen and (max-width: 768px) {
-			font-size: 14px;
-			line-height: 1.4;
-		}
 	}
 `;
 
@@ -103,6 +104,13 @@ export const Rank = styled.div`
 	flex-direction: column;
 	width: 100%;
 	align-items: center;
+	margin-bottom: 24px;
+
+	.rank-title {
+		color: ${(props) => props.theme.textMain};
+		font-weight: 600;
+		margin-bottom: 16px;
+	}
 `;
 
 export const ContainerRating = styled.div`
@@ -120,42 +128,41 @@ export const Category = styled.div`
 	max-width: 320px;
 	justify-content: center;
 	text-align: center;
-	background: #ffffff;
-	border: none;
+	background: ${(props) => props.theme.cardBg};
+	border: 2px solid ${(props) => (props.isCustom ? "#6366f1" : "transparent")};
 	border-radius: 14px;
 	padding: 18px 16px;
-	margin-bottom: 4px;
 	box-sizing: border-box;
-	box-shadow:
-		0 4px 6px -1px rgba(0, 0, 0, 0.05),
-		0 2px 4px -1px rgba(0, 0, 0, 0.03);
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+	position: relative;
 	transition: all 0.2s ease-in-out;
-	-webkit-tap-highlight-color: transparent;
 
-	@media (hover: hover) {
+	.delete-custom {
+		position: absolute;
+		top: 8px;
+		right: 8px;
+		background: transparent;
+		border: none;
+		color: #ef4444;
+		cursor: pointer;
+		font-size: 16px;
+		padding: 4px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		opacity: 0.6;
+		transition: opacity 0.2s;
 		&:hover {
-			transform: translateY(-3px);
-			box-shadow:
-				0 10px 15px -3px rgba(0, 0, 0, 0.1),
-				0 4px 6px -2px rgba(0, 0, 0, 0.05);
+			opacity: 1;
 		}
-	}
-
-	&:active {
-		transform: translateY(1px);
-		background-color: #fcfcfc;
 	}
 
 	p {
 		padding: 0;
 		margin: 0;
-		color: #334155;
+		color: ${(props) => props.theme.textMain};
 		font-weight: 500;
 		font-size: 15px;
-
-		@media screen and (max-width: 768px) {
-			font-size: 14px;
-		}
 	}
 `;
 
@@ -167,40 +174,37 @@ export const TotalMoney = styled.div`
 	width: auto;
 	font-size: 26px;
 	font-weight: 700;
-	color: #10b981;
 	margin: 12px 0 0 0;
-	background: #f8fafc;
 	padding: 10px 20px;
 	border-radius: 12px;
-	transition:
-		transform 0.2s ease,
-		background-color 0.2s ease;
 
-	@media (hover: hover) {
-		&:hover {
-			transform: scale(1.02);
-		}
-	}
-
-	&:active {
-		transform: scale(0.98);
-		background-color: #f1f5f9;
-	}
+	/* Пункт 4: Пасхалка с переливанием и мешком денег */
+	${(props) =>
+		props.isRich
+			? css`
+					background: linear-gradient(
+						90deg,
+						#10b981,
+						#3b82f6,
+						#10b981
+					);
+					background-size: 200% auto;
+					color: #ffffff;
+					animation: ${moneyRainbow} 2s linear infinite;
+					label {
+						color: rgba(255, 255, 255, 0.8) !important;
+					}
+				`
+			: css`
+					background: ${(props) => props.theme.moneyBg};
+					color: #10b981;
+				`}
 
 	label {
 		margin-left: 6px;
 		font-size: 16px;
-		color: #64748b;
+		color: ${(props) => props.theme.textMuted};
 		font-weight: 500;
-	}
-
-	@media screen and (max-width: 768px) {
-		font-size: 22px;
-		padding: 8px 16px;
-
-		label {
-			font-size: 14px;
-		}
 	}
 `;
 
@@ -211,11 +215,11 @@ export const HoursWorked = styled.div`
 	justify-content: center;
 	align-self: center;
 	flex-direction: column;
-	margin: 30px 0 20px 0;
+	margin: 10px 0 20px 0;
 
 	p {
-		margin: 0 0 8px 4px;
-		color: #475569;
+		margin: 14px 0 8px 4px;
+		color: ${(props) => props.theme.textMain};
 		font-size: 14px;
 		font-weight: 600;
 		text-align: left;
@@ -223,28 +227,100 @@ export const HoursWorked = styled.div`
 
 	input {
 		outline: none;
-		border: 2px solid #cbd5e1;
+		border: 2px solid ${(props) => props.theme.border};
 		border-radius: 12px;
 		width: 100%;
 		height: 52px;
 		padding: 10px 16px;
 		box-sizing: border-box;
 		font-size: 16px;
-		color: #1e293b;
-		background-color: #ffffff;
+		color: ${(props) => props.theme.textMain};
+		background-color: ${(props) => props.theme.cardBg};
 		transition: all 0.3s ease;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
 		appearance: none;
 		-webkit-appearance: none;
 
 		&:focus {
 			border-color: #4f46e5;
 			animation: ${pulse} 1s infinite;
-			box-shadow: 0 4px 12px rgba(99, 102, 241, 0.1);
 		}
+	}
+`;
 
-		&::placeholder {
-			color: #94a3b8;
+export const ActionButton = styled.button`
+	background: #4f46e5;
+	color: white;
+	border: none;
+	border-radius: 12px;
+	height: 48px;
+	font-size: 16px;
+	font-weight: 600;
+	cursor: pointer;
+	margin-top: 15px;
+	transition: background 0.2s;
+
+	&:hover {
+		background: #4338ca;
+	}
+	&:disabled {
+		background: ${(props) => props.theme.border};
+		color: ${(props) => props.theme.textMuted};
+		cursor: not-allowed;
+	}
+`;
+
+export const HistoryContainer = styled.div`
+	display: flex;
+	flex-direction: column;
+	width: 100%;
+	max-width: 320px;
+	align-self: center;
+	margin-top: 20px;
+	background: ${(props) => props.theme.cardBg};
+	border-radius: 14px;
+	padding: 16px;
+	box-sizing: border-box;
+	box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+
+	h3 {
+		margin: 0 0 12px 0;
+		font-size: 16px;
+		color: ${(props) => props.theme.textMain};
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+
+		button {
+			background: transparent;
+			border: none;
+			color: #ef4444;
+			font-size: 12px;
+			cursor: pointer;
+		}
+	}
+
+	.history-list {
+		display: flex;
+		flex-direction: column;
+		gap: 8px;
+		max-height: 200px;
+		overflow-y: auto;
+	}
+
+	.history-item {
+		display: flex;
+		justify-content: space-between;
+		font-size: 13px;
+		padding: 6px 0;
+		border-bottom: 1px solid ${(props) => props.theme.border};
+		color: ${(props) => props.theme.textMain};
+
+		span.date {
+			color: ${(props) => props.theme.textMuted};
+		}
+		span.money {
+			font-weight: 600;
+			color: #10b981;
 		}
 	}
 `;
@@ -255,29 +331,16 @@ export const Footer = styled.div`
 	align-items: center;
 	text-align: center;
 	flex-direction: column;
-	color: #94a3b8;
+	color: ${(props) => props.theme.textMuted};
 	font-size: 0.875rem;
 	margin-top: auto;
 	padding: 40px 0 24px 0;
 	width: 100%;
 
 	a {
-		display: flex;
 		color: #6366f1;
 		text-decoration: none;
 		font-weight: 600;
-		transition: color 0.2s ease;
 		padding: 10px;
-
-		@media (hover: hover) {
-			&:hover {
-				color: #4f46e5;
-				text-decoration: underline;
-			}
-		}
-
-		&:active {
-			color: #4f46e5;
-		}
 	}
 `;
