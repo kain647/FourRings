@@ -111,30 +111,35 @@ export const LogoWrapper = styled.div`
 	svg {
 		width: 100%;
 		height: auto;
-		/* Цвет колец берется из текущей темы (адаптивный хром) */
 		color: ${(props) => props.theme.textMain};
 	}
 
-	/* Эффект распила: линия раскола будет контрастной */
 	line {
 		stroke: ${(props) =>
 			props.theme.background.includes("#0f172a") ? "#0f172a" : "#f8fafc"};
 	}
 
-	/* Интерактив: когда тапаешь или наводишь на логотип, пила начинает слегка вибрировать */
-	&:hover g {
-		animation: sawVibration 0.15s linear infinite;
+	.handle-hole {
+		fill: ${(props) => props.theme.cardBg};
 	}
 
-	@keyframes sawVibration {
+	/* Анимация пиления при наведении или тапе */
+	&:hover g {
+		/* transform-origin центрирует анимацию ровно посередине ножовки */
+		transform-origin: 95px 45px;
+		animation: sawMotion 0.12s linear infinite;
+	}
+
+	/* Новая аккуратная анимация: ножовка ходит строго вперед-назад по своей оси */
+	@keyframes sawMotion {
 		0% {
-			transform: rotate(15deg) translate(0, 0);
+			transform: rotate(18deg) translate(0, 0);
 		}
 		50% {
-			transform: rotate(15deg) translate(1px, -1px);
+			transform: rotate(18deg) translate(-3px, 0.5px);
 		}
 		100% {
-			transform: rotate(15deg) translate(-1px, 1px);
+			transform: rotate(18deg) translate(3px, -0.5px);
 		}
 	}
 `;
